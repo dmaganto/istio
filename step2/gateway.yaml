@@ -1,0 +1,46 @@
+apiVersion: networking.istio.io/v1beta1
+kind: Gateway
+metadata:
+  name: echotest-gw
+spec:
+  selector:
+    istio: ingressgateway
+  servers:
+  - port:
+      number: 80
+      name: http
+      protocol: HTTP
+    hosts:
+    - "prueba.example.com"
+---
+apiVersion: networking.istio.io/v1beta1
+kind: VirtualService
+metadata:
+  name: echotest-vs
+spec:
+  hosts:
+  - "prueba.example.com"
+  gateways:
+  - echotest-gw
+  http:
+  - match:
+    - uri:
+        prefix: "/echo"
+#    route:
+#    - destination:
+#        host: echoserver
+#        port:
+#          number: 80
+    route:
+    - destination:
+        host: echoserver
+        port:
+          number: 80
+        subset: v1
+      weight: 80
+    - destination:
+        host: echoserver
+        port:
+          number: 80
+        subset: v2
+      weight: 20
